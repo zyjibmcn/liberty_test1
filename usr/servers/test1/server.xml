@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+
+    <!-- Enable features -->
+    <featureManager>
+      <feature>adminCenter-1.0</feature>
+      <feature>appSecurity-2.0</feature>
+      <feature>ejbLite-3.2</feature>
+      <feature>ejbPersistentTimer-3.2</feature>
+      <feature>jaxrs-2.0</feature>
+      <feature>jpa-2.0</feature>
+      <feature>jsp-2.3</feature>
+      <feature>openid-2.0</feature>
+      <feature>websocket-1.1</feature>
+    </featureManager>
+
+    <include location="db.xml"/>
+
+    <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
+    <httpEndpoint host="*"
+                  httpPort="9080"
+                  httpsPort="9443" 
+                  id="defaultHttpEndpoint" >
+      <accessLogging filePath="${server.output.dir}/logs/access.log" maxFileSize="20" maxFiles="50" />    
+    </httpEndpoint>
+				  
+   <keyStore id="defaultKeyStore" password="yourPassword" />
+
+    <webApplication context-root="/test" id="test" location="testpage" name="test" >
+      <application-bnd>
+         <security-role name="All Role">
+           <!-- <special-subject type="ALL_AUTHENTICATED_USERS"/> -->
+           <group name="isvt-admin" access-id="group:w3/cn=zosreaders,ou=memberlist,ou=ibmgroups,o=ibm.com" />
+         </security-role>
+      </application-bnd>
+    </webApplication>
+
+    <application context-root="/" id="ROOT" location="ROOT.war" name="ROOT" >
+          <application-bnd>
+                   <security-role name="auth-basic">
+                              <user name="wlpadmin" />
+                                         <special-subject type="ALL_AUTHENTICATED_USERS"/>
+                                                  </security-role>
+                                                           <security-role name="Users">
+                                                                      <special-subject type="ALL_AUTHENTICATED_USERS"/>
+                                                                               </security-role>
+                                                                                     </application-bnd>
+    </application>
+    
+    <!--
+    <trustAssociation id="myTrustAssociation"
+                  failOverToAppAuthType="false">
+      <interceptors id="simpleTAI" enabled="true" invokeAfterSSO="true" 
+                  className="com.ibm.isvt.base.authentication.tai.OpenIDTAI" 
+                  libraryRef="simpleTAI"> 
+      </interceptors> 
+    </trustAssociation> 
+
+    <library id="simpleTAI"> 
+      <fileset dir="${shared.resource.dir}/tai" includes="tai-143-SNAPSHOT.jar"/> 
+    </library> 
+    -->
+   
+    <authFilter id="authFilter1">
+              <requestUrl id="requestUrl0" urlPattern="/adminCenter" matchType="notContain"/>
+                    <requestUrl id="requestUrl1" urlPattern="/auth-basic" matchType="notContain"/>
+                          <requestUrl id="requestUrl2" urlPattern="/error-pages/" matchType="notContain"/>
+    </authFilter>
+
+    <!-- Configure the liberty server as a OpenId Relying Party -->
+    <openId authFilterRef="authFilter1" id="openId" providerIdentifier="https://w3-03.sso.ibm.com/FIM/openidsso" userInfoRef="email">
+      <userInfo id="email" alias="email" uriType="http://axschema.org/contact/email" count="1" required="true" />
+    </openId>
+
+
+    <administrator-role>
+      <user>wlpadmin</user>
+    </administrator-role>
+
+    <basicRegistry id="basic" realm="w3">
+      <user name="wlpadmin" password="wlpadmin" />
+    </basicRegistry>
+    
+    <!-- Customize the messages.log roll over thresholds, the unit of maxFileSize is MB -->
+    <logging maxFileSize="20" maxFiles="50" traceSpecification="*=audit:com.ibm.ws.security.*=finest" />
+
+    <transaction totalTranLifetimeTimeout="3m" />
+</server>

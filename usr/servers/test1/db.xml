@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="The database configuration for this wlp server">
+	
+    <!--  Database configure for db2 -->
+    <dataSource id="db2" jndiName="jdbc/DataSource" statementCacheSize="20" transactional="false" type="javax.sql.ConnectionPoolDataSource">
+      <jdbcDriver>
+        <library name="derbyLibrary">
+	  <fileset dir="${shared.resource.dir}/derby"/>
+	</library>
+      </jdbcDriver>
+      <properties.derby.embedded createDatabase="create" databaseName="svtdash"/>
+      <connectionManager agedTimeout="60m" connectionTimeout="60s" maxIdleTime="30m" maxPoolSize="100" minPoolSize="10" purgePolicy="EntirePool" />
+    </dataSource>
+	
+    <library id="DB2JCC4Lib">
+      <fileset dir="${shared.resource.dir}/db2"/>
+    </library>
+
+    <!--  Database configure for EJBTimers -->
+    <dataSource id="DefaultDataSource">
+      <jdbcDriver>
+        <library name="derbyLibrary">
+	  <fileset dir="${shared.resource.dir}/derby"/>
+	</library>
+      </jdbcDriver>
+      <properties.derby.embedded createDatabase="create" databaseName="EJBTimers"/>
+    </dataSource>
+	
+</server>
